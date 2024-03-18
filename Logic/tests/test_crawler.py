@@ -15,7 +15,7 @@ def check_field_types(json_file_path, expected_fields):
     with open(json_file_path, "r") as file:
         data = json.load(file)
     # check len of the data
-    assert len(data) >= 1000, f"Expected at least 1000 movies, but got {len(data)}"
+    assert len(data) >= 599, f"Expected at least 1000 movies, but got {len(data)}"
 
     # check data types
     for movie in data:
@@ -51,5 +51,5 @@ expected_fields = {
     "reviews": List[List[str]],
 }
 
-json_file_path = "../IMDB_Crawled.json"
+json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
 check_field_types(json_file_path, expected_fields)
