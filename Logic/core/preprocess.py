@@ -1,5 +1,12 @@
 from nltk.stem import PorterStemmer, WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+import ssl
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 import nltk
 nltk.download('punkt')
 nltk.download('wordnet')
@@ -57,11 +64,20 @@ class Preprocessor:
         """
         preprocessed_documents = []
         for doc in self.documents:
-            # TODO
-            pass
+            doc['title'] = self.normalize(doc['title'])
+            doc['first_page_summary'] = self.normalize(doc['first_page_summary'])
+            doc['directors'] = self.normalize(doc['directors'])
+            doc['writers'] = self.normalize(doc['writers'])
+            doc['genres'] = self.normalize(doc['genres'])
+            doc['languages'] = self.normalize(doc['languages'])
+            doc['countries_of_origin'] = self.normalize(doc['countries_of_origin'])
+            doc['summaries'] = self.normalize(doc['summaries'])
+            doc['synopsis'] = self.normalize(doc['synopsis'])
+            doc['reviews'] = self.normalize(flatten(doc['reviews']))
+            preprocessed_documents.append(doc)
         return preprocessed_documents
 
-    def normalize(self, text: str):
+    def normalize(self, text):
         """
         Normalize the text by converting it to a lower case, stemming, lemmatization, etc.
 
@@ -75,13 +91,26 @@ class Preprocessor:
         str
             The normalized text.
         """
-        lower_case_text = text.lower()
-        no_link_text = self.remove_links(lower_case_text)
-        no_punc_text = self.remove_punctuations(no_link_text)
-        no_stop_word = self.remove_stopwords(no_punc_text)
-        tokens = self.tokenize(' '.join(no_stop_word))
-        stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
-        return ' '.join(stemmed_tokens)
+        
+        if isinstance(text, list):
+            res = []
+            for temp in text:
+                lower_case_text = temp.lower()
+                no_link_text = self.remove_links(lower_case_text)
+                no_punc_text = self.remove_punctuations(no_link_text)
+                no_stop_word = self.remove_stopwords(no_punc_text)
+                tokens = self.tokenize(' '.join(no_stop_word))
+                stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
+                res.append(stemmed_tokens)
+            return flatten(res)
+        if isinstance(text, str):
+            lower_case_text = text.lower()
+            no_link_text = self.remove_links(lower_case_text)
+            no_punc_text = self.remove_punctuations(no_link_text)
+            no_stop_word = self.remove_stopwords(no_punc_text)
+            tokens = self.tokenize(' '.join(no_stop_word))
+            stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
+            return ' '.join(stemmed_tokens)
 
     def remove_links(self, text: str):
         """
@@ -151,3 +180,8 @@ class Preprocessor:
         words = text.split()
         filtered_words = [word for word in words if word not in self.stopwords]
         return filtered_words
+    
+def flatten(xss):
+    if xss is None:
+        return None
+    return [x for xs in xss for x in xs]

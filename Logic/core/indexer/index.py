@@ -103,13 +103,13 @@ class Index:
         for doc in self.preprocessed_documents:
             summaries = doc['summaries']
             doc_id = doc['id']
-
-            for summary in summaries:
-                if summary not in summary_based_index:
-                    summary_based_index[summary] = {}
-                if doc_id not in summary_based_index[summary]:
-                    summary_based_index[summary][doc_id] = 0
-                summary_based_index[summary][doc_id] += 1
+            if summaries is not None:
+                for summary in summaries:
+                    if summary not in summary_based_index:
+                        summary_based_index[summary] = {}
+                    if doc_id not in summary_based_index[summary]:
+                        summary_based_index[summary][doc_id] = 0
+                    summary_based_index[summary][doc_id] += 1
         
         return summary_based_index
 
@@ -133,26 +133,26 @@ class Index:
         try:
             if index_type == 'documents':
                 doc_dict = self.index['documents']
-                for key in doc_dict.keys:
+                for key in doc_dict.keys():
                     if word in doc_dict[key]:
                         posting_list.append(key)
             elif index_type == 'stars':
                 star_to_doc_dict = self.index['stars'] #  {term: {document_id: tf}}
-                for key in star_to_doc_dict.keys:
+                for key in star_to_doc_dict.keys():
                     if key == word:
                         for doc_id in star_to_doc_dict[key]:
                             if doc_id not in posting_list:
                                 posting_list.append(doc_id)
             elif index_type == 'genres':
                 genre_to_doc_dict = self.index['genres'] #  {term: {document_id: tf}}
-                for key in genre_to_doc_dict.keys:
+                for key in genre_to_doc_dict.keys():
                     if key == word:
                         for doc_id in genre_to_doc_dict[key]:
                             if doc_id not in posting_list:
                                 posting_list.append(doc_id)
             elif index_type == 'summaries':
                 summary_to_doc_dict = self.index['summaries'] #  {term: {document_id: tf}}
-                for key in summary_to_doc_dict.keys:
+                for key in summary_to_doc_dict.keys():
                     if key == word:
                         for doc_id in summary_to_doc_dict[key]:
                             if doc_id not in posting_list:
@@ -294,7 +294,7 @@ class Index:
         else:
             print('Remove is incorrect')
 
-    def store_index(self, path: str, index_name: str = None):
+    def store_index(self, path: str, index_name: str):
         """
         Stores the index in a file (such as a JSON file)
 
@@ -312,8 +312,11 @@ class Index:
         if index_name not in self.index:
             raise ValueError('Invalid index name')
 
-        # TODO
-        pass
+        with open('index_'+index_name+'.json', 'w') as f:
+            f.write(json.dumps(self.index[index_name], indent=1))
+            f.close()
+
+        return
 
     def load_index(self, path: str):
         """
@@ -326,7 +329,9 @@ class Index:
         """
 
         #         TODO
-        pass
+        with open(path, "r") as file:
+            data = json.load(file)
+        return
 
     def check_if_index_loaded_correctly(self, index_type: str, loaded_index: dict):
         """
@@ -409,3 +414,13 @@ class Index:
             return False
 
 # TODO: Run the class with needed parameters, then run check methods and finally report the results of check methods
+
+json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/preprocessed_data.json"
+with open(json_file_path, "r") as file:
+    data = json.load(file)
+indexer = Index(data)
+indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/', 'documents')
+indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/', 'stars')
+indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/', 'genres')
+indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/', 'summaries')
+print('done')

@@ -4,7 +4,7 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor, wait
 from threading import Lock
 import json
-
+from preprocess import Preprocessor
 
 class IMDbCrawler:
     """
@@ -664,11 +664,18 @@ class IMDbCrawler:
 
 
 def main():
-    imdb_crawler = IMDbCrawler(crawling_threshold=25)
+    # imdb_crawler = IMDbCrawler(crawling_threshold=25)
     # imdb_crawler.read_from_file_as_json()
-    imdb_crawler.start_crawling()
-    imdb_crawler.write_to_file_as_json()
-
+    # imdb_crawler.start_crawling()
+    # imdb_crawler.write_to_file_as_json()
+    json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
+    with open(json_file_path, "r") as file:
+        data = json.load(file)
+    preprocessor = Preprocessor(data)
+    preprocessed_data = preprocessor.preprocess()
+    with open('preprocessed_data.json', 'w') as f:
+        f.write(json.dumps(preprocessed_data, indent=1))
+        f.close()
 
 if __name__ == '__main__':
     main()
