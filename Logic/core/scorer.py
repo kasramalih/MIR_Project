@@ -191,13 +191,13 @@ class Scorer:
             score = 0
             # RSV^BM25 = \sum log(N/idf * [(k+1)tf / k1(1-b + b * dl / avdl) + tf])
             for term in query_idfs.keys():
-                idf = self.N / (query_idfs[term] + 1)
+                idf = math.log10(self.N / (query_idfs[term] + 1))
                 tf = 0
                 if term in self.index and doc in self.index[term]:
                     tf = self.index[term][doc]
                 dl = document_lengths[doc]
                 temp = ((k1 + 1)*tf) / (k1 * (1 - b + b * dl / avdl) + tf)
-                score += math.log10(idf * temp)
+                score += idf * temp
             scores[doc] = score
         return scores
 
