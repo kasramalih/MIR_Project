@@ -1,3 +1,5 @@
+import json
+import math
 import numpy as np
 
 class Scorer:    
@@ -63,11 +65,13 @@ class Scorer:
         -------
             It was better to store dfs in a separate dict in preprocessing.
         """
-        idf = self.idf.get(term, None)
-        if idf is None:
-            # TODO
-            pass
-        return idf
+        df = self.idf.get(term, None)
+        if df is None:
+            df = len(self.index.get(term, {}))
+            # print(df)
+            # idf = math.log(self.N / (df + 1))  # Adding 1 to avoid division by zero
+            self.idf[term] = df
+        return df
     
     def get_query_tfs(self, query):
         """
@@ -84,7 +88,15 @@ class Scorer:
             A dictionary of the term frequencies of the terms in the query.
         """
         
-        #TODO
+        query_tfs = {}
+        if isinstance(query, list):
+            for term in query:
+                query_tfs[term] = query_tfs.get(term, 0) + 1
+        else:
+            for term in query.split():
+                query_tfs[term] = query_tfs.get(term, 0) + 1
+
+        return query_tfs
 
 
     def compute_scores_with_vector_space_model(self, query, method):
@@ -95,7 +107,7 @@ class Scorer:
         ----------
         query: List[str]
             The query to be scored
-        method : str ((n|l)(n|t)(n|c).(n|l)(n|t)(n|c))
+        method : str ((n|l)(n|t)(n|c).(n|l)(n|t)(n|c)): e.x.: lnc.ltn
             The method to use for searching.
 
         Returns
@@ -103,35 +115,48 @@ class Scorer:
         dict
             A dictionary of the document IDs and their scores.
         """
-
-        # TODO
-        pass
-
-    def get_vector_space_model_score(self, query, query_tfs, document_id, document_method, query_method):
         """
-        Returns the Vector Space Model score of a document for a query.
-
-        Parameters
-        ----------
-        query: List[str]
-            The query to be scored
-        query_tfs : dict
-            The term frequencies of the terms in the query.
-        document_id : str
-            The document to calculate the score for.
-        document_method : str (n|l)(n|t)(n|c)
-            The method to use for the document.
-        query_method : str (n|l)(n|t)(n|c)
-            The method to use for the query.
-
-        Returns
-        -------
-        float
-            The Vector Space Model score of the document for the query.
+        n: no idf ... 
+        l: logarithmic tf ( 1 + log(tf_t,d) )
+        t: idf (t in second column) ( log(N/df) )
+        c: cosine normalization ... 
         """
-
-        #TODO
-        pass
+        # we have tf_t,d
+        # we have tf_t,q
+        # we have idf
+        docs_to_scores = {}
+        docs = self.get_list_of_documents(query)
+        method_list = [char for char in method if char != '.']
+        tf_tq = self.get_query_tfs(query)
+        for doc in docs:
+            sim = 0
+            sum_wtd = 0
+            sum_wtq = 0
+            for term in tf_tq.keys():
+                if term in self.index and doc in self.index[term]:
+                    w_td = self.index[term][doc] # if term is in the index!(gotta check this!)
+                else:
+                    w_td = 0
+                w_tq = tf_tq[term] # 
+                if method_list[0] == 'l' and w_td != 0:
+                    w_td = 1 + math.log10(self.index[term][doc])
+                if method_list[1] == 't' and w_td != 0:
+                    w_td *= math.log10(self.N / (self.get_idf(term) + 1))
+                if method_list[2] == 'c':
+                    sum_wtd += w_td * w_td
+                if method_list[3] == 'l':
+                    w_td = 1 + math.log10(tf_tq[term])
+                if method_list[4] == 't':
+                    w_td *= math.log10(self.N / (self.get_idf(term) + 1))
+                if method_list[5] == 'c':
+                    sum_wtq += w_tq * w_tq
+                sim += w_td * w_tq
+            if method_list[2] == 'c' and sum_wtd != 0:
+                sim /= math.sqrt(sum_wtd)
+            if method_list[5] == 'c' and sum_wtq != 0:
+                sim /= math.sqrt(sum_wtq)
+            docs_to_scores[doc] = sim
+        return docs_to_scores
 
     def compute_socres_with_okapi_bm25(self, query, average_document_field_length, document_lengths):
         """
@@ -152,31 +177,40 @@ class Scorer:
         dict
             A dictionary of the document IDs and their scores.
         """
+        scores = {}
 
-        # TODO
-        pass
+        k1 = 1.2  # Tunable parameter
+        b = 0.75  # Tunable parameter
+        avdl = sum(document_lengths.values()) / len(document_lengths)
 
-    def get_okapi_bm25_score(self, query, document_id, average_document_field_length, document_lengths):
-        """
-        Returns the Okapi BM25 score of a document for a query.
+        query_idfs = {}
+        for term in query:
+            query_idfs[term] = self.get_idf(term)
 
-        Parameters
-        ----------
-        query: List[str]
-            The query to be scored
-        document_id : str
-            The document to calculate the score for.
-        average_document_field_length : float
-            The average length of the documents in the index.
-        document_lengths : dict
-            A dictionary of the document lengths. The keys are the document IDs, and the values are
-            the document's length in that field.
+        for doc in self.get_list_of_documents(query):
+            score = 0
+            # RSV^BM25 = \sum log(N/idf * [(k+1)tf / k1(1-b + b * dl / avdl) + tf])
+            for term in query_idfs.keys():
+                idf = self.N / (query_idfs[term] + 1)
+                tf = 0
+                if term in self.index and doc in self.index[term]:
+                    tf = self.index[term][doc]
+                dl = document_lengths[doc]
+                temp = ((k1 + 1)*tf) / (k1 * (1 - b + b * dl / avdl) + tf)
+                score += math.log10(idf * temp)
+            scores[doc] = score
+        return scores
 
-        Returns
-        -------
-        float
-            The Okapi BM25 score of the document for the query.
-        """
 
-        # TODO
-        pass
+
+json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/summaries_index.json"
+with open(json_file_path, "r") as file:
+    data = json.load(file)
+scorer = Scorer(data, 25)
+scorer.get_idf("cover")
+query = ["redemption", "dark", "knight", "mafia", "father", "god"]
+#print(scorer.get_query_tfs("redemption the dark knight redemption"))
+#print(scorer.get_list_of_documents(["redemption", "dark", "knight"]))
+dic = scorer.compute_scores_with_vector_space_model(query, "lnc.ltc")
+for key in dic.keys():
+    print(key, dic[key])

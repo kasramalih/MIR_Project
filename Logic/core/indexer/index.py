@@ -400,7 +400,7 @@ class Index:
         print('Brute force time: ', brute_force_time)
         print('Implemented time: ', implemented_time)
 
-        if set(docs).issubset(set(posting_list)):
+        if set(docs).issubset(set(posting_list)): # type: ignore
             print('Indexing is correct')
 
             if implemented_time < brute_force_time:
