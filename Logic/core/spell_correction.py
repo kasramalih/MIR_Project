@@ -1,3 +1,6 @@
+import json
+
+
 class SpellCorrection:
     def __init__(self, all_documents):
         """
@@ -28,7 +31,9 @@ class SpellCorrection:
         """
         shingles = set()
         
-        # TODO: Create shingle here
+        for i in range(len(word) - k + 1):
+            shingle = word[i:i + k]
+            shingles.add(shingle)
 
         return shingles
     
@@ -49,9 +54,10 @@ class SpellCorrection:
             Jaccard score.
         """
 
-        # TODO: Calculate jaccard score here.
-
-        return
+        intersection = len(first_set.intersection(second_set))
+        union = len(first_set.union(second_set))
+        jaccard_score = intersection / union if union != 0 else 0
+        return jaccard_score
 
     def shingling_and_counting(self, all_documents):
         """
@@ -72,7 +78,16 @@ class SpellCorrection:
         all_shingled_words = dict()
         word_counter = dict()
 
-        # TODO: Create shingled words dictionary and word counter dictionary here.
+        for doc in all_documents:
+            # change this so you read from indexed summaries, much faster, but words are stemmed!!
+            text = doc['summaries'] # just searching for words in summaries ... maybe added next fields
+            if text is not None:
+                for element in text:
+                    for word in element.split():
+                        if word not in word_counter.keys():
+                            word_counter[word] = 0
+                            all_shingled_words[word] = self.shingle_word(word)
+                        word_counter[word] += 1
                 
         return all_shingled_words, word_counter
     
@@ -92,8 +107,22 @@ class SpellCorrection:
         """
         top5_candidates = list()
 
-        # TODO: Find 5 nearest candidates here.
-
+        misspelled_shingles = self.shingle_word(word)
+        temp_list = list()
+        for key in self.all_shingled_words.keys():
+            candidate_shingles = self.all_shingled_words[key]
+            score = self.jaccard_score(misspelled_shingles, candidate_shingles)
+            if len(temp_list) < 5:
+                temp_list.append([score, key])
+                temp_list = sorted(temp_list, reverse = True)
+            # elif score > temp_list[4][0]:
+            else:
+                temp_list.append([score, key])
+                temp_list = sorted(temp_list, reverse = True)
+                temp_list.pop()
+        print(temp_list)
+        for sk in temp_list:
+            top5_candidates.append(sk[1])
         return top5_candidates
     
     def spell_check(self, query):
@@ -102,7 +131,7 @@ class SpellCorrection:
 
         Parameters
         ----------
-        query : stf
+        query : str
             The misspelled query.
 
         Returns
@@ -111,7 +140,18 @@ class SpellCorrection:
             Correct form of the query.
         """
         final_result = ""
-        
-        # TODO: Do spell correction here.
+
+        for word in query.split():
+            top_5_candids = self.find_nearest_words(word)
+            print(word, '\n',top_5_candids)
+            final_result += top_5_candids[0] + ''
 
         return final_result
+
+
+json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
+with open(json_file_path, "r") as file:
+    data = json.load(file)
+spell = SpellCorrection(data)
+query = 'the darkh knjght ank joher'
+res = spell.spell_check(query)
