@@ -12,8 +12,10 @@ class Metadata_index:
         path : str
             The path to the indexes.
         """
-        
-        #TODO
+        self.path = path
+        self.read_documents()
+        self.metadata_index = self.create_metadata_index()
+        self.store_metadata_index(self.path)
 
     def read_documents(self):
         """
@@ -21,7 +23,7 @@ class Metadata_index:
         
         """
 
-        #TODO
+        self.documents = Index_reader(self.path, index_name=Indexes.DOCUMENTS).index
 
     def create_metadata_index(self):    
         """
@@ -46,8 +48,12 @@ class Metadata_index:
         where : str
             The field to get the document lengths for.
         """
-
-        #TODO
+        s = 0
+        for _,doc in self.documents.items():
+            if doc[where] is not None:
+                s += len(doc[where])
+        # divide or no?
+        return s / len(self.documents)
 
     def store_metadata_index(self, path):
         """
@@ -61,6 +67,7 @@ class Metadata_index:
         path =  path + Indexes.DOCUMENTS.value + '_' + Index_types.METADATA.value + '_index.json'
         with open(path, 'w') as file:
             json.dump(self.metadata_index, file, indent=4)
+        print('metadata index stored successfully.')
 
 
     

@@ -1,5 +1,8 @@
-from nltk.stem import PorterStemmer, WordNetLemmatizer
-from nltk.tokenize import word_tokenize
+from unidecode import unidecode
+import json
+import string
+import re
+import nltk
 import ssl
 try:
     _create_unverified_https_context = ssl._create_unverified_context
@@ -7,11 +10,22 @@ except AttributeError:
     pass
 else:
     ssl._create_default_https_context = _create_unverified_https_context
-import nltk
-nltk.download('punkt')
+nltk.download('punkt', )
 nltk.download('wordnet')
-import re
-import string
+nltk.download('averaged_perceptron_tagger')
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import wordnet
+from nltk.tokenize import word_tokenize
+
+tag_dict = {"j": wordnet.ADJ,
+            "n": wordnet.NOUN,
+            "v": wordnet.VERB,
+            "r": wordnet.ADV
+            }
+def get_wordnet_pos(word):
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    return tag_dict.get(tag, wordnet.NOUN)
 
 class Preprocessor:
 
@@ -27,9 +41,9 @@ class Preprocessor:
         self.documents = documents
         self.stopwords = ['this', 'that', 'about', 'whom', 'being', 'where', 'why', 'had', 'should', 'each']
         self.stemmer = PorterStemmer()
+        self.lemmatizer = WordNetLemmatizer()
 
     def preprocessQuery(self, query):
-        #TODO
         return self.normalize(query)
 
     def preprocess(self):
@@ -99,22 +113,24 @@ class Preprocessor:
         if isinstance(text, list):
             res = []
             for temp in text:
-                lower_case_text = temp.lower()
+                lower_case_text = unidecode(temp).lower()
                 no_link_text = self.remove_links(lower_case_text)
                 no_punc_text = self.remove_punctuations(no_link_text)
                 no_stop_word = self.remove_stopwords(no_punc_text)
                 tokens = self.tokenize(' '.join(no_stop_word))
-                stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
-                res.append(stemmed_tokens)
+                # stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
+                lemmed_tokens = [self.lemmatizer.lemmatize(token, get_wordnet_pos(token)) for token in tokens]
+                res.append(lemmed_tokens)
             return flatten(res)
         if isinstance(text, str):
-            lower_case_text = text.lower()
+            lower_case_text = unidecode(text).lower()
             no_link_text = self.remove_links(lower_case_text)
             no_punc_text = self.remove_punctuations(no_link_text)
             no_stop_word = self.remove_stopwords(no_punc_text)
             tokens = self.tokenize(' '.join(no_stop_word))
-            stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
-            return ' '.join(stemmed_tokens)
+            # stemmed_tokens = [self.stemmer.stem(token) for token in tokens]
+            lemmed_tokens = [self.lemmatizer.lemmatize(token, get_wordnet_pos(token)) for token in tokens]
+            return ' '.join(lemmed_tokens)
 
     def remove_links(self, text: str):
         """
@@ -189,3 +205,13 @@ def flatten(xss):
     if xss is None:
         return None
     return [x for xs in xss for x in xs]
+
+
+json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
+with open(json_file_path, "r") as file:
+    data = json.load(file)
+preprocessor = Preprocessor(data)
+preprocessed_data = preprocessor.preprocess()
+with open('preprocessed_data.json', 'w') as f:
+    f.write(json.dumps(preprocessed_data, indent=1))
+    f.close()

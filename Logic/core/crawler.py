@@ -63,14 +63,13 @@ class IMDbCrawler:
         """
         Read the crawled files from json
         """
-        # TODO
+        """# TODO
         with open('IMDB_crawled.json', 'r') as f:
             self.crawled = None
 
         with open('IMDB_not_crawled.json', 'w') as f:
-            self.not_crawled = None
-
-        # self.added_ids = None TODO what to do?
+            self.not_crawled = None"""
+        pass
 
     def crawl(self, URL):
         """
@@ -131,7 +130,6 @@ class IMDbCrawler:
     def start_crawling(self):
         """
         Start crawling the movies until the crawling threshold is reached.
-        TODO: 
             done- replace WHILE_LOOP_CONSTRAINTS with the proper constraints for the while loop.
             replace NEW_URL with the new URL to crawl.
             replace THERE_IS_NOTHING_TO_CRAWL with the condition to check if there is nothing to crawl.
@@ -175,14 +173,13 @@ class IMDbCrawler:
         URL: str
             The URL of the site
         """
-        # TODO 
         print("new iteration")
         response = self.crawl(URL)
         movie_dict = self.get_imdb_instance()
         self.extract_movie_info(response, movie_dict, URL)
         self.crawled.append(movie_dict)
         related_links = movie_dict['related_links']
-        for link in related_links:
+        for link in related_links: # type: ignore
             id = self.get_id_from_URL(link)
             if id not in self.added_ids:
                 self.not_crawled.append(link)
@@ -218,12 +215,12 @@ class IMDbCrawler:
         movie['countries_of_origin'] = self.get_countries_of_origin(soup)
         movie['rating'] = self.get_rating(soup)
         summary_link = self.get_summary_link(URL)
-        summary_response = get(summary_link, headers=self.headers)
+        summary_response = get(summary_link, headers=self.headers) # type: ignore
         summary_soup = BeautifulSoup(summary_response.text, 'html.parser')
         movie['summaries'] = self.get_summary(summary_soup)
         movie['synopsis'] = self.get_synopsis(summary_soup)
         review_link = self.get_review_link(URL)
-        review_response = get(review_link, headers=self.headers)
+        review_response = get(review_link, headers=self.headers) # type: ignore
         review_soup = BeautifulSoup(review_response.text, 'html.parser')
         movie['reviews'] = self.get_reviews_with_scores(review_soup)
 
@@ -664,10 +661,11 @@ class IMDbCrawler:
 
 
 def main():
-    # imdb_crawler = IMDbCrawler(crawling_threshold=25)
+    imdb_crawler = IMDbCrawler(crawling_threshold=500)
     # imdb_crawler.read_from_file_as_json()
-    # imdb_crawler.start_crawling()
-    # imdb_crawler.write_to_file_as_json()
+    imdb_crawler.start_crawling()
+    imdb_crawler.write_to_file_as_json()
+    """    
     json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
     with open(json_file_path, "r") as file:
         data = json.load(file)
@@ -676,6 +674,7 @@ def main():
     with open('preprocessed_data.json', 'w') as f:
         f.write(json.dumps(preprocessed_data, indent=1))
         f.close()
+    """
 
 if __name__ == '__main__':
     main()

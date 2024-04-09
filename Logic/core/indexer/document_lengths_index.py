@@ -42,13 +42,13 @@ class DocumentLengthsIndex:
             the document's length in that field (where).
         """
 
-        # TODO:
-        temp_dict = {}
-        for docid in self.documents_index:
-            doc = self.document_length_index[docid]
-            temp = doc[where]
-            temp_dict[docid] = len(temp)
-        return temp_dict
+        res = {}
+        for id, doc in self.documents_index.items():
+            if doc[where] is not None:
+                res[id] = len(doc[where])
+            else:
+                res[id] = 0
+        return res
     
     def store_document_lengths_index(self, path , index_name):
         """

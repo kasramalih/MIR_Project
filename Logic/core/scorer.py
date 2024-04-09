@@ -181,7 +181,6 @@ class Scorer:
 
         k1 = 1.2  # Tunable parameter
         b = 0.75  # Tunable parameter
-        avdl = sum(document_lengths.values()) / len(document_lengths)
 
         query_idfs = {}
         for term in query:
@@ -196,7 +195,7 @@ class Scorer:
                 if term in self.index and doc in self.index[term]:
                     tf = self.index[term][doc]
                 dl = document_lengths[doc]
-                temp = ((k1 + 1)*tf) / (k1 * (1 - b + b * dl / avdl) + tf)
+                temp = ((k1 + 1)*tf) / (k1 * (1 - b + b * dl / average_document_field_length) + tf)
                 score += idf * temp
             scores[doc] = score
         return scores

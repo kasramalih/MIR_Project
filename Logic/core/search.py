@@ -1,9 +1,10 @@
 import json
+from textwrap import indent
 import numpy as np
-from preprocess import Preprocessor
-from scorer import Scorer
-from indexer.indexes_enum import Indexes, Index_types
-from indexer.index_reader import Index_reader
+from .preprocess import Preprocessor
+from .scorer import Scorer
+from .indexer.indexes_enum import Indexes, Index_types
+from .indexer.index_reader import Index_reader
 
 
 class SearchEngine:
@@ -54,9 +55,8 @@ class SearchEngine:
             A list of tuples containing the document IDs and their scores sorted by their scores.
         """
 
-        preprocessor = Preprocessor([query]) # TODO do not pass query directly, create a function for it!
-        query = preprocessor.preprocess()[0].split()
-
+        preprocessor = Preprocessor([])
+        query = preprocessor.preprocessQuery(query).split() # type: ignore
         scores = {}
         if safe_ranking:
             self.find_scores_with_safe_ranking(query, method, weights, scores)
@@ -88,7 +88,7 @@ class SearchEngine:
         """
         for field, weight in weights.items():
             if field in scores:
-                for doc, score in scores.items():
+                for doc, score in scores[field].items():
                     if doc in final_scores.keys():
                         final_scores[doc] += score * weight
                     else:
@@ -135,35 +135,14 @@ class SearchEngine:
 
         for field in weights:
             print(field)
-            scorer = Scorer(index= self.document_indexes[field],number_of_documents=None) # TODO
+            scorer = Scorer(index= self.document_indexes[field].index ,number_of_documents=self.metadata_index.index['document_count'])
             scores[field] = {}
             if method == 'OkapiBM25':
-                # TODO
-                res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=None , document_lengths=None)
+                res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=self.metadata_index.index['averge_document_length'][field.value] , document_lengths=self.document_lengths_index[field])
                 scores[field] = res
             else:
                 res = scorer.compute_scores_with_vector_space_model(query, method)
                 scores[field] = res
-
-
-
-    def merge_scores(self, scores1, scores2):
-        """
-        Merges two dictionaries of scores.
-
-        Parameters
-        ----------
-        scores1 : dict
-            The first dictionary of scores.
-        scores2 : dict
-            The second dictionary of scores.
-
-        Returns
-        -------
-        dict
-            The merged dictionary of scores.
-        """
-        #TODO where is it used aslan????
 
 
 if __name__ == '__main__':

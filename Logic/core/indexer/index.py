@@ -78,7 +78,8 @@ class Index:
         for doc in self.preprocessed_documents:
             genres = doc['genres']
             doc_id = doc['id']
-
+            if genres is None:
+                continue
             for genre in genres:
                 if genre not in genre_based_index:
                     genre_based_index[genre] = {}
@@ -427,6 +428,6 @@ indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 
 indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 'summaries')
 
 # indexer.check_add_remove_is_correct()
-print(indexer.check_if_index_loaded_correctly('genres', indexer.load_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/genres_index.json')))
-indexer.check_if_indexing_is_good('genres', 'crime')
+# print(indexer.check_if_index_loaded_correctly('genres', indexer.load_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/genres_index.json')))
+#cindexer.check_if_indexing_is_good('genres', 'crime')
 print('done')

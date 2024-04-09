@@ -1,5 +1,6 @@
 import json
-
+from .indexer.index_reader import Index_reader
+from .indexer.indexes_enum import Indexes
 
 class SpellCorrection:
     def __init__(self, all_documents):
@@ -12,6 +13,12 @@ class SpellCorrection:
             The input documents.
         """
         self.all_shingled_words, self.word_counter = self.shingling_and_counting(all_documents)
+        path = '/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index'
+        self.index = {
+            Indexes.STARS: Index_reader(path, index_name=Indexes.STARS).index,
+            Indexes.GENRES: Index_reader(path, index_name=Indexes.GENRES).index,
+            Indexes.SUMMARIES: Index_reader(path, index_name=Indexes.SUMMARIES).index,
+        }
 
     def shingle_word(self, word, k=2):
         """
@@ -139,14 +146,14 @@ class SpellCorrection:
         str
             Correct form of the query.
         """
-        final_result = ""
+        final_result = []
 
         for word in query.split():
             top_5_candids = self.find_nearest_words(word)
             print(word, '\n',top_5_candids)
-            final_result += top_5_candids[0] + ' '
+            final_result.append(top_5_candids[0])
 
-        return final_result
+        return ' '.join(final_result)
 
 
 json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"

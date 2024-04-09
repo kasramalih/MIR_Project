@@ -1,7 +1,7 @@
 import streamlit as st
 import sys
 
-sys.path.append("../")
+sys.path.append('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/')
 from Logic import utils
 import time
 from enum import Enum
@@ -51,7 +51,7 @@ def search_handling(
     search_method,
 ):
     if search_button:
-        corrected_query = utils.correct_text(search_term, utils.movies_dataset)
+        corrected_query = utils.correct_text(search_term)
 
         if corrected_query != search_term:
             st.warning(f"Your search terms were corrected to: {corrected_query}")
