@@ -138,7 +138,7 @@ class SearchEngine:
             scorer = Scorer(index= self.document_indexes[field].index ,number_of_documents=self.metadata_index.index['document_count'])
             scores[field] = {}
             if method == 'OkapiBM25':
-                res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=self.metadata_index.index['averge_document_length'][field.value] , document_lengths=self.document_lengths_index[field])
+                res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=self.metadata_index.index['averge_document_length'][field.value] , document_lengths=self.document_lengths_index[field].index)
                 scores[field] = res
             else:
                 res = scorer.compute_scores_with_vector_space_model(query, method)
