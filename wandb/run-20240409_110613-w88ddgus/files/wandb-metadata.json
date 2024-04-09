@@ -1,0 +1,45 @@
+{
+    "os": "macOS-10.16-x86_64-i386-64bit",
+    "python": "3.8.1",
+    "heartbeatAt": "2024-04-09T07:36:15.248822",
+    "startedAt": "2024-04-09T07:36:13.752909",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/Logic/core/utility/evaluation.py",
+    "codePathLocal": "Logic/core/utility/evaluation.py",
+    "codePath": "Logic/core/utility/evaluation.py",
+    "git": {
+        "remote": "https://github.com/kasramalih/MIR_Project.git",
+        "commit": "44d89444d5a7a9005260910d40c10d8946ff95eb"
+    },
+    "email": "kasramalihi@gmail.com",
+    "root": "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project",
+    "host": "kianas-MacBook-Air.local",
+    "username": "kianamalihi",
+    "executable": "/usr/local/bin/python3",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 2400,
+        "min": 2400,
+        "max": 2400
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400,
+            "min": 2400,
+            "max": 2400
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 228.27386474609375,
+            "used": 11.351665496826172
+        }
+    },
+    "memory": {
+        "total": 8.0
+    }
+}
