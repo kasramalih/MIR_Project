@@ -202,7 +202,7 @@ class Scorer:
 
 
 
-json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/summaries_index.json"
+"""json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/summaries_index.json"
 with open(json_file_path, "r") as file:
     data = json.load(file)
 scorer = Scorer(data, 25)
@@ -212,4 +212,4 @@ query = ["redemption", "dark", "knight", "mafia", "father", "god"]
 #print(scorer.get_list_of_documents(["redemption", "dark", "knight"]))
 dic = scorer.compute_scores_with_vector_space_model(query, "lnc.ltc")
 for key in dic.keys():
-    print(key, dic[key])
+    print(key, dic[key])"""

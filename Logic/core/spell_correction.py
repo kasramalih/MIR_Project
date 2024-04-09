@@ -12,13 +12,14 @@ class SpellCorrection:
         all_documents : list of str
             The input documents.
         """
-        self.all_shingled_words, self.word_counter = self.shingling_and_counting(all_documents)
         path = '/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index'
         self.index = {
             Indexes.STARS: Index_reader(path, index_name=Indexes.STARS).index,
             Indexes.GENRES: Index_reader(path, index_name=Indexes.GENRES).index,
             Indexes.SUMMARIES: Index_reader(path, index_name=Indexes.SUMMARIES).index,
         }
+
+        self.all_shingled_words, self.word_counter = self.shingling_and_counting(all_documents)
 
     def shingle_word(self, word, k=2):
         """
@@ -85,6 +86,13 @@ class SpellCorrection:
         all_shingled_words = dict()
         word_counter = dict()
 
+        for idx, dic in self.index.items():
+            for key in dic.keys():
+                if key not in word_counter.keys():
+                    word_counter[key] = 0
+                    all_shingled_words[key] = self.shingle_word(key)
+                word_counter[key] += 1 
+        """
         for doc in all_documents:
             # change this so you read from indexed summaries, much faster, but words are stemmed!!
             text = doc['summaries'] # just searching for words in summaries ... maybe added next fields
@@ -95,7 +103,7 @@ class SpellCorrection:
                             word_counter[word] = 0
                             all_shingled_words[word] = self.shingle_word(word)
                         word_counter[word] += 1
-                
+        """
         return all_shingled_words, word_counter
     
     def find_nearest_words(self, word):
@@ -127,7 +135,6 @@ class SpellCorrection:
                 temp_list.append([score, key])
                 temp_list = sorted(temp_list, reverse = True)
                 temp_list.pop()
-        print(temp_list)
         for sk in temp_list:
             top5_candidates.append(sk[1])
         return top5_candidates
@@ -150,16 +157,15 @@ class SpellCorrection:
 
         for word in query.split():
             top_5_candids = self.find_nearest_words(word)
-            print(word, '\n',top_5_candids)
             final_result.append(top_5_candids[0])
 
         return ' '.join(final_result)
 
 
-json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
+"""json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/preprocessed_data.json"
 with open(json_file_path, "r") as file:
     data = json.load(file)
 spell = SpellCorrection(data)
-query = 'the darkh knjght anl joler'
+query = 'the darkh knjght anl joker tom hollandk katman'
 res = spell.spell_check(query)
-print(res)
+print(res)"""

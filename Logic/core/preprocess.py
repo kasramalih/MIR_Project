@@ -207,11 +207,11 @@ def flatten(xss):
     return [x for xs in xss for x in xs]
 
 
-json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
+"""json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled.json"
 with open(json_file_path, "r") as file:
     data = json.load(file)
 preprocessor = Preprocessor(data)
 preprocessed_data = preprocessor.preprocess()
 with open('preprocessed_data.json', 'w') as f:
     f.write(json.dumps(preprocessed_data, indent=1))
-    f.close()
+    f.close()"""

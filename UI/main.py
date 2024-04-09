@@ -1,12 +1,12 @@
 import streamlit as st
 import sys
 
-sys.path.append('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/')
-from Logic import utils
+sys.path.append('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/Logic')
+import utils
 import time
 from enum import Enum
 import random
-from Logic.core.snippet import Snippet
+from core.snippet import Snippet
 
 snippet_obj = Snippet(
     number_of_words_on_each_side=5
@@ -78,37 +78,37 @@ def search_handling(
                 card = st.columns([3, 1])
                 info = utils.get_movie_by_id(result[i][0], utils.movies_dataset)
                 with card[0].container():
-                    st.title(info["title"])
-                    st.markdown(f"[Link to movie]({info['URL']})")
+                    st.title(info[0]["title"])
+                    st.markdown(f"[Link to movie]({info[0]['URL']})")
                     st.write(f"Relevance Score: {result[i][1]}")
                     st.markdown(
-                        f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info, search_term)}",
+                        f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info[0], search_term)}",
                         unsafe_allow_html=True,
                     )
 
                 with st.container():
                     st.markdown("**Directors:**")
-                    num_authors = len(info["directors"])
+                    num_authors = len(info[0]["directors"])
                     for j in range(num_authors):
-                        st.text(info["directors"][j])
+                        st.text(info[0]["directors"][j])
 
                 with st.container():
                     st.markdown("**Stars:**")
-                    num_authors = len(info["stars"])
-                    stars = "".join(star + ", " for star in info["stars"])
+                    num_authors = len(info[0]["stars"])
+                    stars = "".join(star + ", " for star in info[0]["stars"])
                     st.text(stars[:-2])
 
                     topic_card = st.columns(1)
                     with topic_card[0].container():
                         st.write("Genres:")
-                        num_topics = len(info["genres"])
+                        num_topics = len(info[0]["genres"])
                         for j in range(num_topics):
                             st.markdown(
-                                f"<span style='color:{random.choice(list(color)).value}'>{info['genres'][j]}</span>",
+                                f"<span style='color:{random.choice(list(color)).value}'>{info[0]['genres'][j]}</span>",
                                 unsafe_allow_html=True,
                             )
                 with card[1].container():
-                    st.image(info["Image_URL"], use_column_width=True)
+                    st.image(info[0]["Image_URL"], use_column_width=True)
 
                 st.divider()
 

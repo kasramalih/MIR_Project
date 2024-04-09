@@ -1,8 +1,8 @@
 from typing import Dict, List
-from .core.search import SearchEngine
-from .core.spell_correction import SpellCorrection
-from .core.snippet import Snippet
-from .core.indexer.indexes_enum import Indexes, Index_types
+from core.search import SearchEngine
+from core.spell_correction import SpellCorrection
+from core.snippet import Snippet
+from core.indexer.indexes_enum import Indexes, Index_types
 import json
 
 movies_dataset = {}
@@ -19,7 +19,9 @@ with open('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/preprocessed_data.
     for doc in pre_processed_documents:
         movies_dataset[doc['id']].append(doc)
     f.close()
+print('waiting for spell correction')
 s = SpellCorrection(pre_processed_documents)
+print('spell correction done!')
 
 def correct_text(text: str) -> str:
     """
@@ -113,9 +115,11 @@ def get_movie_by_id(id: str, movies_dataset: List[Dict[str, str]]) -> Dict[str, 
     )
 
     result["Image_URL"] = (
-        result['Image_URL']
+        "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_.jpg"
     )
     result["URL"] = (
         f"https://www.imdb.com/title/{result['id']}"  # The url pattern of IMDb movies
     )
     return result, processed_result
+
+print('bahbah')
