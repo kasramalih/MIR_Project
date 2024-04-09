@@ -24,10 +24,13 @@ class Preprocessor:
         documents : list
             The list of documents to be preprocessed, path to stop words, or other parameters.
         """
-        # TODO
         self.documents = documents
         self.stopwords = ['this', 'that', 'about', 'whom', 'being', 'where', 'why', 'had', 'should', 'each']
         self.stemmer = PorterStemmer()
+
+    def preprocessQuery(self, query):
+        #TODO
+        return self.normalize(query)
 
     def preprocess(self):
         """
@@ -68,6 +71,7 @@ class Preprocessor:
             doc['first_page_summary'] = self.normalize(doc['first_page_summary'])
             doc['directors'] = self.normalize(doc['directors'])
             doc['writers'] = self.normalize(doc['writers'])
+            doc['stars'] = self.normalize(doc['stars'])
             doc['genres'] = self.normalize(doc['genres'])
             doc['languages'] = self.normalize(doc['languages'])
             doc['countries_of_origin'] = self.normalize(doc['countries_of_origin'])

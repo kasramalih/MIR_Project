@@ -1,9 +1,9 @@
 import json
 import numpy as np
-from .preprocess import Preprocessor
-from .scorer import Scorer
-from .indexes_enum import Indexes, Index_types
-from .index_reader import Index_reader
+from preprocess import Preprocessor
+from scorer import Scorer
+from indexer.indexes_enum import Indexes, Index_types
+from indexer.index_reader import Index_reader
 
 
 class SearchEngine:
@@ -12,7 +12,7 @@ class SearchEngine:
         Initializes the search engine.
 
         """
-        path = '/index'
+        path = '/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index'
         self.document_indexes = {
             Indexes.STARS: Index_reader(path, Indexes.STARS),
             Indexes.GENRES: Index_reader(path, Indexes.GENRES),
@@ -54,7 +54,7 @@ class SearchEngine:
             A list of tuples containing the document IDs and their scores sorted by their scores.
         """
 
-        preprocessor = Preprocessor([query])
+        preprocessor = Preprocessor([query]) # TODO do not pass query directly, create a function for it!
         query = preprocessor.preprocess()[0].split()
 
         scores = {}
@@ -86,8 +86,13 @@ class SearchEngine:
         final_scores : dict
             The final scores of the documents.
         """
-        # TODO
-        pass
+        for field, weight in weights.items():
+            if field in scores:
+                for doc, score in scores.items():
+                    if doc in final_scores.keys():
+                        final_scores[doc] += score * weight
+                    else:
+                        final_scores[doc] = score * weight
 
     def find_scores_with_unsafe_ranking(self, query, method, weights, max_results, scores):
         """
@@ -106,6 +111,7 @@ class SearchEngine:
         scores : dict
             The scores of the documents.
         """
+        docs_found = set()
         for field in weights:
             for tier in ["first_tier", "second_tier", "third_tier"]:
                 #TODO
@@ -128,8 +134,18 @@ class SearchEngine:
         """
 
         for field in weights:
-            #TODO
-            pass
+            print(field)
+            scorer = Scorer(index= self.document_indexes[field],number_of_documents=None) # TODO
+            scores[field] = {}
+            if method == 'OkapiBM25':
+                # TODO
+                res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=None , document_lengths=None)
+                scores[field] = res
+            else:
+                res = scorer.compute_scores_with_vector_space_model(query, method)
+                scores[field] = res
+
+
 
     def merge_scores(self, scores1, scores2):
         """
@@ -147,8 +163,7 @@ class SearchEngine:
         dict
             The merged dictionary of scores.
         """
-
-        #TODO
+        #TODO where is it used aslan????
 
 
 if __name__ == '__main__':

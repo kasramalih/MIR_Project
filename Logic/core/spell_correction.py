@@ -144,7 +144,7 @@ class SpellCorrection:
         for word in query.split():
             top_5_candids = self.find_nearest_words(word)
             print(word, '\n',top_5_candids)
-            final_result += top_5_candids[0] + ''
+            final_result += top_5_candids[0] + ' '
 
         return final_result
 
@@ -153,5 +153,6 @@ json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawle
 with open(json_file_path, "r") as file:
     data = json.load(file)
 spell = SpellCorrection(data)
-query = 'the darkh knjght ank joher'
+query = 'the darkh knjght anl joler'
 res = spell.spell_check(query)
+print(res)

@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import itertools
 import random
@@ -53,7 +54,6 @@ class MinHashLSH:
         """
         shingled_documents = [self.shingle_document(doc) for doc in self.documents]
         shingles = sorted(set().union(*shingled_documents))
-        print(shingles)
         num_docs = len(self.documents)
         num_shingles = len(shingles)
         characteristic_matrix = np.zeros((num_shingles, num_docs), dtype=int)
@@ -77,7 +77,6 @@ class MinHashLSH:
         signatures = np.full((self.num_hashes, num_docs), np.inf)
         # maybe I need to change the permutation to a hash function!
         hashes = [np.random.permutation(num_shingles) for _ in range(self.num_hashes)]
-        print(hashes)
         for i in range(self.num_hashes):
             for j in range(num_docs):
                 for k in range(num_shingles):
@@ -130,7 +129,6 @@ class MinHashLSH:
         dict
             A dictionary mapping bucket IDs to lists of document indices.
         """
-        # TODO
         return self.lsh_buckets(self.min_hash_signature(), bands=10, rows_per_band=10)
 
     def jaccard_score(self, first_set, second_set):
@@ -203,12 +201,13 @@ class MinHashLSH:
         print("your final score in near duplicate detection:", correct_near_duplicates / all_near_duplicates)
 
 
-docs = [
-    'kasra khare',
-    'kir to zendegi',
-    'kir e khar',
-    'khar to zendegi'
-    ]
-minHashLSH = MinHashLSH(docs,3)
-print(minHashLSH.build_characteristic_matrix()) # tested and ok
-print(minHashLSH.min_hash_signature()) # tested and ok
+
+path = 'Logic/core/LSHFakeData.json'
+with open(path, 'r') as f:
+    data = json.load(f)
+    f.close()
+documents = []
+for doc in data:
+    documents.append(' '.join(doc['summaries']))
+lsh = MinHashLSH(documents, 100)
+lsh.jaccard_similarity_test(lsh.perform_lsh(), documents)

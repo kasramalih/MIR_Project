@@ -160,7 +160,9 @@ class Index:
             else:
                 print('WRONG INDEX TYPE!')
         except:
-            return []
+            return posting_list
+        
+        return posting_list
 
     def add_document_to_index(self, document: dict):
         """
@@ -259,7 +261,8 @@ class Index:
         if index_after_add[Indexes.DOCUMENTS.value]['100'] != dummy_document:
             print('Add is incorrect, document')
             return
-
+        print(index_after_add[Indexes.STARS.value]['tim'])
+        # print(index_before_add[Indexes.STARS.value]['tim']) TABIE E KE QABL ADD IN NABASHE DIGE IN CHE TEST MASKHARE I HAST!
         if (set(index_after_add[Indexes.STARS.value]['tim']).difference(set(index_before_add[Indexes.STARS.value]['tim']))
                 != {dummy_document['id']}):
             print('Add is incorrect, tim')
@@ -328,10 +331,9 @@ class Index:
             Path to load the file
         """
 
-        #         TODO
         with open(path, "r") as file:
             data = json.load(file)
-        return
+        return data
 
     def check_if_index_loaded_correctly(self, index_type: str, loaded_index: dict):
         """
@@ -391,7 +393,7 @@ class Index:
 
         # check by getting the posting list of the word
         start = time.time()
-        # TODO: based on your implementation, you may need to change the following line
+        # based on your implementation, you may need to change the following line
         posting_list = self.get_posting_list(check_word, index_type)
 
         end = time.time()
@@ -413,7 +415,7 @@ class Index:
             print('Indexing is wrong')
             return False
 
-# TODO: Run the class with needed parameters, then run check methods and finally report the results of check methods
+# Run the class with needed parameters, then run check methods and finally report the results of check methods
 
 json_file_path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/preprocessed_data.json"
 with open(json_file_path, "r") as file:
@@ -423,4 +425,8 @@ indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 
 indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 'stars')
 indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 'genres')
 indexer.store_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index', 'summaries')
+
+# indexer.check_add_remove_is_correct()
+print(indexer.check_if_index_loaded_correctly('genres', indexer.load_index('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/genres_index.json')))
+indexer.check_if_indexing_is_good('genres', 'crime')
 print('done')
