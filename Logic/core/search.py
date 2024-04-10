@@ -111,11 +111,21 @@ class SearchEngine:
         scores : dict
             The scores of the documents.
         """
-        docs_found = set()
         for field in weights:
-            for tier in ["first_tier", "second_tier", "third_tier"]:
-                #TODO
-                pass
+            scores[field] = {}
+            for tier in ["first_tier", "second_tier"]: # first two tier are the champion list
+                scorer = Scorer(index= self.tiered_index[field].index[tier] ,number_of_documents=self.metadata_index.index['document_count'])
+                if method == 'OkapiBM25':
+                    res = scorer.compute_socres_with_okapi_bm25(query, average_document_field_length=self.metadata_index.index['averge_document_length'][field.value] , document_lengths=self.document_lengths_index[field].index)
+                    for docid in res.keys():
+                        if docid not in scores[field].keys() and len(scores[field].keys()) < max_results:
+                            scores[field] = res
+                else:
+                    res = scorer.compute_scores_with_vector_space_model(query, method)
+                    for docid in res.keys():
+                        if docid not in scores[field].keys() and len(scores[field].keys()) < max_results:
+                            scores[field] = res
+
 
     def find_scores_with_safe_ranking(self, query, method, weights, scores):
         """

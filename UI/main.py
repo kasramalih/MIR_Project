@@ -18,15 +18,18 @@ class color(Enum):
     GREEN = "#00FF00"
     BLUE = "#0000FF"
     YELLOW = "#FFFF00"
-    WHITE = "#FFFFFF"
+    # WHITE = "#FFFFFF"
     CYAN = "#00FFFF"
     MAGENTA = "#FF00FF"
 
 
 def get_summary_with_snippet(movie_info, query):
     summary = movie_info["first_page_summary"]
-    snippet, not_exist_words = snippet_obj.find_snippet(summary, query)
+    snippet, not_exist_words = snippet_obj.find_snippet(movie_info, query)
+    print('inja1', snippet)
     if "***" in snippet:
+        print('inja2')
+        summary = snippet
         snippet = snippet.split()
         for i in range(len(snippet)):
             current_word = snippet[i]
@@ -82,7 +85,7 @@ def search_handling(
                     st.markdown(f"[Link to movie]({info[0]['URL']})")
                     st.write(f"Relevance Score: {result[i][1]}")
                     st.markdown(
-                        f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info[0], search_term)}",
+                        f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info[1], search_term)}",
                         unsafe_allow_html=True,
                     )
 

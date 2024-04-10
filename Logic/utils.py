@@ -122,7 +122,7 @@ def get_movie_by_id(id: str, movies_dataset: List[Dict[str, str]]) -> Dict[str, 
     )
 
     result["Image_URL"] = (
-        image_URL[id] if image_URL[id] is not None else "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_.jpg"
+        image_URL[id] if id in image_URL.keys() else "https://m.media-amazon.com/images/M/MV5BNDE3ODcxYzMtY2YzZC00NmNlLWJiNDMtZDViZWM2MzIxZDYwXkEyXkFqcGdeQXVyNjAwNDUxODI@._V1_.jpg"
     )
     result["URL"] = (
         f"https://www.imdb.com/title/{result['id']}"  # The url pattern of IMDb movies

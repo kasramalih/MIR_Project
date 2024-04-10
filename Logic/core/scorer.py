@@ -137,7 +137,7 @@ class Scorer:
                     w_td = self.index[term][doc] # if term is in the index!(gotta check this!)
                 else:
                     w_td = 0
-                w_tq = tf_tq[term] # 
+                w_tq = tf_tq[term]
                 if method_list[0] == 'l' and w_td != 0:
                     w_td = 1 + math.log10(self.index[term][doc])
                 if method_list[1] == 't' and w_td != 0:
@@ -145,9 +145,9 @@ class Scorer:
                 if method_list[2] == 'c':
                     sum_wtd += w_td * w_td
                 if method_list[3] == 'l':
-                    w_td = 1 + math.log10(tf_tq[term])
+                    w_tq = 1 + math.log10(tf_tq[term])
                 if method_list[4] == 't':
-                    w_td *= math.log10(self.N / (self.get_idf(term) + 1))
+                    w_tq *= math.log10(self.N / (self.get_idf(term) + 1))
                 if method_list[5] == 'c':
                     sum_wtq += w_tq * w_tq
                 sim += w_td * w_tq
