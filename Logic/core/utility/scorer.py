@@ -233,7 +233,11 @@ class Scorer:
         """
 
         # TODO
-        pass
+        scores = {}
+        for doc in self.get_list_of_documents(query):
+            scores[doc] = self.compute_score_with_unigram_model(query, doc, smoothing_method, document_lengths, alpha, lamda)
+        return scores
+
 
     def compute_score_with_unigram_model(
         self, query, document_id, smoothing_method, document_lengths, alpha, lamda
@@ -265,4 +269,44 @@ class Scorer:
         """
 
         # TODO
-        pass
+        score = 0.0
+        query_terms = query.split()
+        
+        # Calculate the total number of terms in the collection
+        total_terms_in_collection = sum(document_lengths.values())
+        term_frequency_in_doc = 0
+        for term in query_terms:
+            if term in self.index and document_id in self.index[term]:
+                term_frequency_in_doc = self.index[term][document_id]
+
+            # Get document length
+            doc_length = document_lengths[document_id]
+            
+            # Get term frequency in the collection
+            term_frequency_in_collection = self.get_term_frequency_in_collection(term)
+            
+            # Calculate probabilities based on the smoothing method
+            if smoothing_method == 'bayes':
+                prob = (term_frequency_in_doc + alpha) / (doc_length + alpha * total_terms_in_collection)
+            
+            elif smoothing_method == 'naive':
+                prob = (term_frequency_in_doc + 1) / (doc_length + total_terms_in_collection)
+            
+            elif smoothing_method == 'mixture':
+                prob_doc = term_frequency_in_doc / doc_length
+                prob_collection = term_frequency_in_collection / total_terms_in_collection
+                prob = lamda * prob_doc + (1 - lamda) * prob_collection
+            
+            else:
+                raise ValueError("Invalid smoothing method: choose from 'bayes', 'naive', 'mixture'")
+            
+            score += math.log(prob)
+        
+        return score
+    
+    def get_term_frequency_in_collection(self, term):
+        if term in self.index:
+            total_frequency = sum(self.index[term].values())
+            return total_frequency
+        else:
+            return 0

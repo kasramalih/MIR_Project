@@ -213,7 +213,13 @@ class SearchEngine:
             probability and the collection probability. Defaults to 0.5.
         """
         # TODO
-        pass
+        for field in weights:
+            print(field)
+            scorer = Scorer(index= self.document_indexes[field].index ,number_of_documents=self.metadata_index.index['document_count'])
+            scores[field] = {}
+            res = scorer.compute_scores_with_unigram_model(query, smoothing_method, document_lengths=self.document_lengths_index[field].index, alpha = alpha, lamda = lamda)
+            scores[field] = res
+
 
 if __name__ == "__main__":
     search_engine = SearchEngine()
