@@ -161,3 +161,4 @@ cython_debug/
 .idea/
 IMDB Dataset.csv
 IMDB_crawled_given.json
+FastText_model.bin
