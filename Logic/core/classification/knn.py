@@ -2,14 +2,16 @@ import numpy as np
 from sklearn.metrics import classification_report
 from tqdm import tqdm
 
-from .basic_classifier import BasicClassifier
-from .data_loader import ReviewLoader
-
+from basic_classifier import BasicClassifier
+from data_loader import ReviewLoader
+from collections import Counter
 
 class KnnClassifier(BasicClassifier):
     def __init__(self, n_neighbors):
         super().__init__()
         self.k = n_neighbors
+        self.X = None
+        self.y = None
 
     def fit(self, x, y):
         """
@@ -28,7 +30,8 @@ class KnnClassifier(BasicClassifier):
         self
             Returns self as a classifier
         """
-        pass
+        self.X = x
+        self.y = y
 
     def predict(self, x):
         """
@@ -42,7 +45,15 @@ class KnnClassifier(BasicClassifier):
             Return the predicted class for each doc
             with the highest probability (argmax)
         """
-        pass
+        predictions = []
+        for i in tqdm(range(x.shape[0])):
+            distances = np.linalg.norm(self.X - x[i, :], axis=1)
+            nearest_neighbors_indices = np.argsort(distances)[:self.k]
+            nearest_neighbors_labels = self.y[nearest_neighbors_indices]
+            most_common_label = Counter(nearest_neighbors_labels).most_common(1)[0][0]
+            predictions.append(most_common_label)
+        return np.array(predictions)
+
 
     def prediction_report(self, x, y):
         """
@@ -57,7 +68,9 @@ class KnnClassifier(BasicClassifier):
         str
             Return the classification report
         """
-        pass
+        y_pred = self.predict(x)
+        return classification_report(y, y_pred)
+
 
 
 # F1 Accuracy : 70%
@@ -65,4 +78,14 @@ if __name__ == '__main__':
     """
     Fit the model with the training data and predict the test data, then print the classification report
     """
-    pass
+    review_loader = ReviewLoader(file_path='/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB Dataset.csv')
+    review_loader.load_data()
+    review_loader.get_embeddings()
+    x_train, x_test, y_train, y_test = review_loader.split_data(test_data_ratio=0.3)
+    print('KNN classifier starting to train!')
+    knn_classifier = KnnClassifier(n_neighbors = 5)
+    knn_classifier.fit(x_train, y_train)
+
+    # Predict and print classification report
+    report = knn_classifier.prediction_report(x_test, y_test)
+    print(report)

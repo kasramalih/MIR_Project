@@ -49,14 +49,14 @@ class FastTextDataLoader:
             data = json.load(f)
         
         records = []
-        for movie_id, details in data.items():
+        for dic in data:
             record = {
-                "id": details.get("id"),
-                "title": details.get("title"),
-                "summaries": details.get("summaries", []),
-                "genres": details.get("genres", []),
-                "synopsis": details.get("synopsis", []),
-                "reviews": details.get("reviews", [])
+                "id": dic.get("id"),
+                "title": dic.get("title"),
+                "summaries": dic.get("summaries", []),
+                "genres": dic.get("genres", []),
+                "synopsis": dic.get("synopsis", []),
+                "reviews": dic.get("reviews", [])
             }
             records.append(record)
         df = pd.DataFrame(records)

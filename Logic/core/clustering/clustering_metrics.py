@@ -11,7 +11,7 @@ class ClusteringMetrics:
     def __init__(self):
         pass
 
-    def silhouette_score(self, embeddings: List, cluster_labels: List) -> float:
+    def silhouette_score(self, embeddings, cluster_labels: List):
         """
         Calculate the average silhouette score for the given cluster assignments.
 
@@ -27,7 +27,8 @@ class ClusteringMetrics:
         float
             The average silhouette score, ranging from -1 to 1, where a higher value indicates better clustering.
         """
-        pass
+        # check the return typr for silhouette score
+        return silhouette_score(embeddings, cluster_labels)
 
     def purity_score(self, true_labels: List, cluster_labels: List) -> float:
         """
@@ -45,7 +46,11 @@ class ClusteringMetrics:
         float
             The purity score, ranging from 0 to 1, where a higher value indicates better clustering.
         """
-        pass
+        contingency_matrix = confusion_matrix(true_labels, cluster_labels)
+        max_cluster_counts = np.amax(contingency_matrix, axis=0)
+        purity = np.sum(max_cluster_counts) / np.sum(contingency_matrix)
+        
+        return purity
 
     def adjusted_rand_score(self, true_labels: List, cluster_labels: List) -> float:
         """
@@ -63,4 +68,4 @@ class ClusteringMetrics:
         float
             The adjusted Rand index, ranging from -1 to 1, where a higher value indicates better clustering.
         """
-        pass
+        return adjusted_rand_score(true_labels, cluster_labels)

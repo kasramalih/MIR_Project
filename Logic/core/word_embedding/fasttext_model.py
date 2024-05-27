@@ -3,8 +3,8 @@ import numpy as np
 from tqdm import tqdm
 from scipy.spatial import distance
 
-from fasttext_data_loader import FastTextDataLoader
-from fasttext_data_loader import preprocess_text
+from .fasttext_data_loader import FastTextDataLoader
+from .fasttext_data_loader import preprocess_text
 class FastText:
     """
     A class used to train a FastText model and generate embeddings for text data.
@@ -150,13 +150,13 @@ class FastText:
 if __name__ == "__main__":
     ft_model = FastText(method='skipgram')
 
-    path = '/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index/documents_index.json'
+    path = '/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/IMDB_crawled_given.json'
     ft_data_loader = FastTextDataLoader(path)
 
     X, y = ft_data_loader.create_train_data()
 
     ft_model.train(X)
-    ft_model.prepare(None, mode = "save")
+    ft_model.prepare(None, mode = "save", save=True)
 
     print(10 * "*" + "Similarity" + 10 * "*")
     word = 'queen'

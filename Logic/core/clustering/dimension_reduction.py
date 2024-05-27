@@ -1,10 +1,15 @@
+from matplotlib import pyplot as plt
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+# import wandb
 
 
 class DimensionReduction:
 
     def __init__(self):
+        # wandb.init(project='MIR PHASE 1', entity='kasramlh')
+        # not using wandb because the site wont open with/without VPN!!
         self.pca = PCA()
         self.tsne_2d = TSNE(n_components=2, random_state=42)
 
@@ -21,7 +26,10 @@ class DimensionReduction:
         -------
             list: A list of reduced embeddings.
         """
-        pass
+        pca = PCA(n_components=n_components)
+        reduced_embeddings = pca.fit_transform(embeddings)
+        self.explained_variance_ratio_ = pca.explained_variance_ratio_
+        return reduced_embeddings
 
     def convert_to_2d_tsne(self, emb_vecs):
         """
@@ -35,9 +43,11 @@ class DimensionReduction:
         --------
             list: A list of 2D vectors.
         """
-        pass
+        tsne_2d = TSNE(n_components=2, random_state=42)
+        tsne_embeddings = tsne_2d.fit_transform(emb_vecs)
+        return tsne_embeddings
 
-    def wandb_plot_2d_tsne(self, data, project_name, run_name):
+    def wandb_plot_2d_tsne(self, data, y, project_name, run_name):
         """ This function performs t-SNE (t-Distributed Stochastic Neighbor Embedding) dimensionality reduction on the input data and visualizes the resulting 2D embeddings by logging a scatter plot to Weights & Biases (wandb).
 
         t-SNE is a widely used technique for visualizing high-dimensional data in a lower-dimensional space, typically 2D. It aims to preserve the local structure of the data points while capturing the global structure as well. This function applies t-SNE to the input data and generates a scatter plot of the resulting 2D embeddings, allowing for visual exploration and analysis of the data's structure and potential clusters.
@@ -64,21 +74,26 @@ class DimensionReduction:
         None
         """
         # Initialize wandb
-        run = wandb.init(project=project_name, name=run_name)
+        # run = wandb.init(project=project_name, name=run_name)
 
         # Perform t-SNE dimensionality reduction
-        # TODO
-
+        tsne_embeddings = self.convert_to_2d_tsne(data)
         # Plot the t-SNE embeddings
-        # TODO
+        plt.figure(figsize=(10, 8))
+        plt.scatter(tsne_embeddings[:, 0], tsne_embeddings[:, 1], lw=0.1, c=y, cmap=plt.cm.get_cmap('jet', 10)) # type: ignore
+        plt.colorbar(ticks=range(10), label='digit value')
+        plt.clim(-0.5, 9.5)
+        plt.title("t-SNE 2D Embeddings")
+        plt.xlabel("Component 1")
+        plt.ylabel("Component 2")
+        plt.show()
+        
 
         # Log the plot to wandb
-        wandb.log({"t-SNE 2D Embeddings": wandb.Image(plt)})
+        # wandb.log({"t-SNE 2D Embeddings": wandb.Image(plt)})
 
         # Close the plot display window if needed (optional)
-        # TODO
-
-    import matplotlib.pyplot as plt
+        # plt.close()
 
     def wandb_plot_explained_variance_by_components(self, data, project_name, run_name):
         """
@@ -107,17 +122,21 @@ class DimensionReduction:
         None
         """
 
-        # Fit PCA and compute cumulative explained variance ratio
-        # TODO
+        pca = PCA().fit(data)
+        cumulative_explained_variance = np.cumsum(pca.explained_variance_ratio_)
 
         # Create the plot
-        # TODO
-
+        plt.figure(figsize=(10, 8))
+        plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance, marker='o')
+        plt.title("Explained Variance by Number of Components")
+        plt.xlabel("Number of Components")
+        plt.ylabel("Cumulative Explained Variance Ratio")
+        plt.show()
         # Initialize wandb
-        run = wandb.init(project=project_name, name=run_name)
+        # run = wandb.init(project=project_name, name=run_name)
 
         # Log the plot to wandb
-        wandb.log({"Explained Variance": wandb.Image(plt)})
+        # wandb.log({"Explained Variance": wandb.Image(plt)})
 
         # Close the plot display window if needed (optional)
-        plt.close()
+        # plt.close()
