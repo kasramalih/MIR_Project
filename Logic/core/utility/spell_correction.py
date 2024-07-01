@@ -1,6 +1,7 @@
 import json
-from .indexer.index_reader import Index_reader
-from .indexer.indexes_enum import Indexes
+
+from ..indexer.index_reader import Index_reader
+from ..indexer.indexes_enum import Indexes
 
 class SpellCorrection:
     def __init__(self, all_documents):

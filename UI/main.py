@@ -6,9 +6,12 @@ import utils
 import time
 from enum import Enum
 import random
-from Logic.core.utility.snippet import Snippet
-from Logic.core.link_analysis.analyzer import LinkAnalyzer
-from Logic.core.indexer.index_reader import Index_reader, Indexes
+import streamlit_authenticator as stauth
+from streamlit_star_rating import st_star_rating
+import yaml
+from core.utility.snippet import Snippet
+from core.link_analysis.analyzer import LinkAnalyzer
+from core.indexer.index_reader import Index_reader, Indexes
 
 snippet_obj = Snippet()
 
@@ -22,9 +25,23 @@ class color(Enum):
     CYAN = "#00FFFF"
     MAGENTA = "#FF00FF"
 
+##################################################################################################
+#movie recommendation: SINCE MOVIE IDS ARE NOT THE SAME I CAN NOTTTTT FUCK!
+##################################################################################################
+
+# Load config for authentication
+with open('/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/UI/config.yaml') as file:
+    config = yaml.safe_load(file)
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days']
+)
 
 def get_top_x_movies_by_rank(x: int, results: list):
-    path = "../Logic/core/index/"  # Link to the index folder
+    path = "/Users/kianamalihi/Desktop/MIR_PROJECT/MIR_Project/index"  # Link to the index folder
     document_index = Index_reader(path, Indexes.DOCUMENTS)
     corpus = []
     root_set = []
@@ -48,9 +65,7 @@ def get_top_x_movies_by_rank(x: int, results: list):
 def get_summary_with_snippet(movie_info, query):
     summary = movie_info["first_page_summary"]
     snippet, not_exist_words = snippet_obj.find_snippet(movie_info, query)
-    print('inja1', snippet)
     if "***" in snippet:
-        print('inja2')
         summary = snippet
         snippet = snippet.split()
         for i in range(len(snippet)):
@@ -68,6 +83,17 @@ def search_time(start, end):
     st.success("Search took: {:.6f} milli-seconds".format((end - start) * 1e3))
 
 
+def function_to_run_on_click(value, title):
+    # for rate history:
+    if value != 0:
+        if "user" in st.session_state:
+            if "rate_history" not in st.session_state:
+                st.session_state["rate_history"] = {}
+            if st.session_state["user"] not in st.session_state["rate_history"]:
+                st.session_state["rate_history"][st.session_state["user"]] = {}
+            print(title, value)
+            st.session_state["rate_history"][st.session_state["user"]][title] = value
+
 def search_handling(
     search_button,
     search_term,
@@ -79,6 +105,7 @@ def search_handling(
     lamda,
     filter_button,
     num_filter_results,
+    username
 ):
     if filter_button:
         if "search_results" in st.session_state:
@@ -98,41 +125,43 @@ def search_handling(
             card = st.columns([3, 1])
             info = utils.get_movie_by_id(top_movies[i], utils.movies_dataset)
             with card[0].container():
-                st.title(info["title"])
-                st.markdown(f"[Link to movie]({info['URL']})")
+                # print(info)
+                st.title(info[0]["title"])
+                st.markdown(f"[Link to movie]({info[0]['URL']})")
                 st.markdown(
-                    f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info, search_term)}",
+                    f"<b><font size = '4'>Summary:</font></b> {get_summary_with_snippet(info[1], search_term)}",
                     unsafe_allow_html=True,
                 )
 
             with st.container():
                 st.markdown("**Directors:**")
-                num_authors = len(info["directors"])
+                num_authors = len(info[0]["directors"])
                 for j in range(num_authors):
-                    st.text(info["directors"][j])
+                    st.text(info[0]["directors"][j])
 
             with st.container():
                 st.markdown("**Stars:**")
-                num_authors = len(info["stars"])
-                stars = "".join(star + ", " for star in info["stars"])
+                num_authors = len(info[0]["stars"])
+                stars = "".join(star + ", " for star in info[0]["stars"])
                 st.text(stars[:-2])
 
                 topic_card = st.columns(1)
                 with topic_card[0].container():
                     st.write("Genres:")
-                    num_topics = len(info["genres"])
+                    num_topics = len(info[0]["genres"])
                     for j in range(num_topics):
                         st.markdown(
-                            f"<span style='color:{random.choice(list(color)).value}'>{info['genres'][j]}</span>",
+                            f"<span style='color:{random.choice(list(color)).value}'>{info[0]['genres'][j]}</span>",
                             unsafe_allow_html=True,
                         )
             with card[1].container():
-                st.image(info["Image_URL"], use_column_width=True)
+                st.image(info[0]["Image_URL"], use_column_width=True)
 
             st.divider()
         return
-
-    if search_button:
+    
+    #if search_button:
+    if search_button == 'search':
         corrected_query = utils.correct_text(search_term)
         # corrected_query = utils.correct_text(search_term, utils.all_documents)
         if corrected_query != search_term:
@@ -154,6 +183,14 @@ def search_handling(
             if "search_results" in st.session_state:
                 st.session_state["search_results"] = result
             print(f"Result: {result}")
+            # for search history:
+            if "user" in st.session_state:
+                if "search_history" not in st.session_state:
+                    st.session_state["search_history"] = {}
+                if st.session_state["user"] not in st.session_state["search_history"]:
+                    st.session_state["search_history"][st.session_state["user"]] = []
+                st.session_state["search_history"][st.session_state["user"]].append(search_term)
+
             end_time = time.time()
             if len(result) == 0:
                 st.warning("No results found!")
@@ -196,7 +233,16 @@ def search_handling(
                             )
                 with card[1].container():
                     st.image(info[0]["Image_URL"], use_column_width=True)
-
+                    default_val = 0
+                    
+                    if "rate_history" in st.session_state and username in st.session_state["rate_history"] and info[0]["title"] in st.session_state["rate_history"][username]:                    
+                        default_val = st.session_state["rate_history"][username][info[0]["title"]]
+                    
+                    stars = st_star_rating(
+                        "your rating", maxValue=5, defaultValue=default_val, size=20,
+                        key=info[0]["Image_URL"],
+                        on_click=function_to_run_on_click,
+                        on_click_kwargs={'title': info[0]["title"]})
             st.divider()
 
         st.session_state["search_results"] = result
@@ -216,6 +262,40 @@ def main():
         '<span style="color:yellow">Developed By: MIR Team at Sharif University</span>',
         unsafe_allow_html=True,
     )
+
+    authenticator_name = st.sidebar.radio(" ", ["Login", "Sign Up"])
+
+    if authenticator_name == "Login":
+        name, authentication_status, username = authenticator.login('main', fields = {'Form name': 'Login'})
+
+        if authentication_status:
+            st.session_state["user"] = username
+            authenticator.logout("Logout", "sidebar")
+            st.sidebar.title(f"Welcome {username}")
+
+            # Display user search history
+            with st.sidebar.expander("**Search History**"):
+                if "search_history" in st.session_state and username in st.session_state["search_history"]:
+                    # st.sidebar.markdown("**Search History:**")
+                    shown_in_search = []
+                    for search in st.session_state["search_history"][username]:
+                        if search != '':
+                            if search not in shown_in_search:
+                                st.markdown(f"{search}")
+                                shown_in_search.append(search)
+            
+            with st.sidebar.expander("**Your Ratings**"):
+            # Display user rate history
+                if "rate_history" in st.session_state and username in st.session_state["rate_history"]:                    
+                    for key,value in st.session_state["rate_history"][username].items():
+                        st.markdown(f"{key}: {value}")
+
+
+        elif authentication_status is False:
+            st.error('Username/password is incorrect')
+        elif authentication_status is None:
+            st.warning('Please enter your username and password')
+
 
     search_term = st.text_input("Seacrh Term")
     with st.expander("Advanced Search"):
@@ -286,7 +366,8 @@ def main():
     if "search_results" not in st.session_state:
         st.session_state["search_results"] = []
 
-    search_button = st.button("Search!")
+    # search_button = st.button("Search!")
+    search_button = st.radio("search", ['search'])
     filter_button = st.button("Filter movies by ranking")
 
     search_handling(
@@ -300,6 +381,7 @@ def main():
         lamda,
         filter_button,
         slider_,
+        username,
     )
 
 

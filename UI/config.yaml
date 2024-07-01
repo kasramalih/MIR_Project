@@ -1,0 +1,15 @@
+credentials:
+  usernames:
+    kasra:
+      email: kasra@sharif.com
+      name: Kasra
+      password: $2b$12$11jlfcz4SaiTNkpA55zc4OxSsBwVrv76bfZ1VNrSGPKyL5NaQqTsa # abc
+    danial:
+      email: danial@sharif.com
+      name: Danial
+      password: $2b$12$gmyX94WVn9V76qsaRt9M7.lzlVvIJnjqOozUggH4HXBa7MSYYKqXW #def
+
+cookie:
+  name: my_app
+  key: some_random_key
+  expiry_days: 30

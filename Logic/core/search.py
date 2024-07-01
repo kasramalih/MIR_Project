@@ -1,8 +1,8 @@
 import json
 from textwrap import indent
 import numpy as np
-from .preprocess import Preprocessor
-from .scorer import Scorer
+from .utility.preprocess import Preprocessor
+from .utility.scorer import Scorer
 from .indexer.indexes_enum import Indexes, Index_types
 from .indexer.index_reader import Index_reader
 

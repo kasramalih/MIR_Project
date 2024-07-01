@@ -201,7 +201,7 @@ class MinHashLSH:
         print("your final score in near duplicate detection:", correct_near_duplicates / all_near_duplicates)
 
 
-
+"""
 path = 'Logic/core/LSHFakeData.json'
 with open(path, 'r') as f:
     data = json.load(f)
@@ -211,3 +211,4 @@ for doc in data:
     documents.append(' '.join(doc['summaries']))
 lsh = MinHashLSH(documents, 100)
 lsh.jaccard_similarity_test(lsh.perform_lsh(), documents)
+"""

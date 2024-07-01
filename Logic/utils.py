@@ -1,7 +1,7 @@
 from typing import Dict, List
 from core.search import SearchEngine
-from core.spell_correction import SpellCorrection
-from core.snippet import Snippet
+from core.utility.spell_correction import SpellCorrection
+from core.utility.snippet import Snippet
 from core.indexer.indexes_enum import Indexes, Index_types
 import json
 

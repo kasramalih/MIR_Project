@@ -4,7 +4,7 @@ from collections import deque
 from concurrent.futures import ThreadPoolExecutor, wait
 from threading import Lock
 import json
-from preprocess import Preprocessor
+from .preprocess import Preprocessor
 
 class IMDbCrawler:
     """
