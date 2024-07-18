@@ -171,6 +171,7 @@ def search_handling(
         with st.spinner("Searching..."):
             time.sleep(0.5)  # for showing the spinner! (can be removed)
             start_time = time.time()
+            print('inja to main',unigram_smoothing)
             result = utils.search(
                 search_term,
                 search_max_num,
@@ -239,7 +240,7 @@ def search_handling(
                         default_val = st.session_state["rate_history"][username][info[0]["title"]]
                     
                     stars = st_star_rating(
-                        "your rating", maxValue=5, defaultValue=default_val, size=20,
+                        "", maxValue=5, defaultValue=default_val, size=20,
                         key=info[0]["Image_URL"],
                         on_click=function_to_run_on_click,
                         on_click_kwargs={'title': info[0]["title"]})

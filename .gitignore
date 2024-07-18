@@ -165,3 +165,4 @@ FastText_model.bin
 
 bert-finetuned-sem_eval-english/
 my_finetuned_bert_model/
+IMDB_not_crawled.json

@@ -270,7 +270,8 @@ class Scorer:
 
         # TODO
         score = 0.0
-        query_terms = query.split()
+        print(query, smoothing_method)
+        query_terms = query
         
         # Calculate the total number of terms in the collection
         total_terms_in_collection = sum(document_lengths.values())

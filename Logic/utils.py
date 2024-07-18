@@ -96,7 +96,7 @@ def search(
         Indexes.SUMMARIES: weights[2]
     }
     return search_engine.search(
-        query, method, weight_dic, max_results=max_result_count, safe_ranking=True
+        query, method, weight_dic, max_results=max_result_count, safe_ranking=True, smoothing_method=smoothing_method, alpha=alpha, lamda=lamda
     )
 
 
